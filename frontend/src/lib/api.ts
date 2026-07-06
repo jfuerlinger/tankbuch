@@ -1,6 +1,6 @@
 import type {
   Fahrzeug, Tankvorgang, VerifyCodeResponse, RequestCodeResponse,
-  PumpOcrResult, TachoOcrResult, CsvImportResult,
+  PumpOcrResult, TachoOcrResult, CsvImportResult, VisionStatus,
 } from './types';
 
 // Relative Pfade: im Dev-Server leitet die Vite-Proxy-Konfiguration /api/* an das Backend
@@ -72,6 +72,7 @@ export const api = {
   ocr: {
     pump: (file: Blob) => { const f = new FormData(); f.append('image', file); return req<PumpOcrResult>('POST', '/api/ocr/pump', f); },
     tacho: (file: Blob) => { const f = new FormData(); f.append('image', file); return req<TachoOcrResult>('POST', '/api/ocr/tacho', f); },
+    status: () => req<VisionStatus>('GET', '/api/ocr/status'),
   },
   csv: {
     async export(): Promise<{ blob: Blob; filename: string }> {

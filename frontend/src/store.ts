@@ -191,17 +191,24 @@ export const useStore = create<State>((set, get) => ({
     // Werte ermitteln: echtes Foto → API (Vision-Modell), Demo → lokal simuliert.
     let pump: { liter: number; total: number } | null = null;
     let tacho: { km: number } | null = null;
+    let meldung: string | null = null;
     try {
       if (file) {
         if (kind === 'pump') {
           const r = await api.ocr.pump(file);
           if (r.liter && r.gesamtpreis) pump = { liter: r.liter, total: r.gesamtpreis };
+          if (r.simuliert) meldung = r.meldung ?? 'Bilderkennung nicht erfolgreich';
         } else {
           const r = await api.ocr.tacho(file);
           if (r.kilometerstand) tacho = { km: r.kilometerstand };
+          if (r.simuliert) meldung = r.meldung ?? 'Bilderkennung nicht erfolgreich';
         }
+        if (meldung) console.warn('[OCR] Fallback auf simulierte Werte:', meldung);
       }
-    } catch { /* Fallback unten */ }
+    } catch (err) {
+      meldung = err instanceof ApiError ? err.message : 'Anfrage an die Bilderkennung fehlgeschlagen';
+      console.error('[OCR] Anfrage fehlgeschlagen – Fallback auf simulierte Werte.', err);
+    }
 
     if (kind === 'pump' && !pump) {
       const base = veh && /diesel/i.test(veh.kraftstoffart) ? 1.659 : 1.539;
@@ -224,11 +231,15 @@ export const useStore = create<State>((set, get) => ({
           scanning: null, rec: { ...st.rec, pump: true },
           form: { ...st.form, liter, total, ppl }, editOrder: ['total', 'liter'], derived: 'ppl',
         });
-        get().toast('Erkannt: ' + liter + ' l · ' + total + ' € – bitte prüfen und bestätigen');
+        get().toast(meldung && file
+          ? 'Erkennung nicht möglich (' + meldung + ') – Schätzwerte, bitte korrigieren'
+          : 'Erkannt: ' + liter + ' l · ' + total + ' € – bitte prüfen und bestätigen');
       } else if (kind === 'tacho' && tacho) {
         const km = fmt(tacho.km, 0);
         set({ scanning: null, rec: { ...st.rec, tacho: true }, form: { ...st.form, km } });
-        get().toast('Kilometerstand erkannt: ' + km + ' km – bitte prüfen');
+        get().toast(meldung && file
+          ? 'Erkennung nicht möglich (' + meldung + ') – Schätzwert, bitte korrigieren'
+          : 'Kilometerstand erkannt: ' + km + ' km – bitte prüfen');
       }
     }, wait);
   },
