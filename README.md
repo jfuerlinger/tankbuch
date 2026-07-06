@@ -26,6 +26,9 @@ Design: Die App bildet exakt die hinterlegte Design-Vorlage (`assets/Tankbuch - 
 - **.NET 10 SDK** (`global.json` pinnt 10.0.100+)
 - **Aspire CLI** (`aspire`), **Docker** (für Postgres, Ollama & Testcontainers)
 - **Node.js + npm** (Frontend; Abhängigkeiten via `frontend/`)
+- **DevTunnel CLI** (`devtunnel`, z. B. `brew install --cask devtunnel`) – wird beim Start
+  automatisch verwendet, um das Frontend öffentlich erreichbar zu machen (siehe unten).
+  Einmalig anmelden: `devtunnel user login --github`.
 - Beim ersten Start lädt Ollama das Modell **`llama3.2-vision:11b` (~7,9 GB)** herunter (per Daten-Volume danach dauerhaft gecacht).
 
 ## Starten
@@ -40,6 +43,15 @@ Das Aspire-Dashboard zeigt die URLs aller Dienste (Frontend, API/Swagger, pgAdmi
 **Anmeldung (Prototyp):** beliebige E-Mail → „Code senden“ → Demo-Code **`123456`** (jeder 6-stellige Code wird akzeptiert). Es wird keine echte E-Mail versendet.
 
 > Hinweis macOS: Ollama läuft im Container ohne GPU-Durchgriff (CPU-Inferenz von `llama3.2-vision` ist langsam). Die OCR-Endpunkte fallen bei Fehler/Timeout automatisch auf plausible **simulierte** Werte zurück, sodass der Erfassungs-Flow immer funktioniert. Das Modell ist konfigurierbar (`AppHost.cs`).
+
+## DevTunnel fürs Frontend
+
+Der AppHost (`AddDevTunnel("frontend-tunnel").WithReference(frontend).WithAnonymousAccess()`)
+richtet automatisch einen [DevTunnel](https://learn.microsoft.com/azure/developer/dev-tunnels/overview)
+für den Vite-Dev-Server ein. Im Aspire-Dashboard erscheint dazu eine Ressource
+`frontend-tunnel` mit einer öffentlichen, anonym erreichbaren `https://*.devtunnels.ms`-URL
+– praktisch zum Testen auf Mobilgeräten oder für spontane Demos. Reines Dev-Time-Feature;
+wird bei `aspire publish`/`aspire deploy` nicht berücksichtigt.
 
 ## Deployment (Docker Compose)
 
