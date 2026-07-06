@@ -59,3 +59,21 @@ public sealed class TachoOcrEndpoint(IVisionService vision) : ApiEndpoint<TachoO
         await Send.OkAsync(await vision.ReadTachoAsync(ms.ToArray(), file.ContentType, ct), ct);
     }
 }
+
+/// <summary>Diagnose-Status der Bilderkennung (kein Modell konfiguriert? letzter Aufruf erfolgreich?
+/// Rohantwort des Modells beim letzten Fehlversuch) – für die Fehlersuche ohne eigenes Test-Foto.</summary>
+public sealed class OcrStatusEndpoint(IVisionService vision) : ApiEndpoint<VisionStatus>
+{
+    public override void Configure()
+    {
+        Get("/api/ocr/status");
+        AllowAnonymous();
+        Summary(s => s.Summary = "Diagnose-Status der Bilderkennung (aktives Modell, letzter Aufruf, letzte Meldung)");
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        if (!await AuthAsync(ct)) return;
+        await Send.OkAsync(vision.GetStatus(), ct);
+    }
+}

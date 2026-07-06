@@ -124,5 +124,17 @@ public class ApiTests(TankbuchApiFactory factory)
         r!.Simuliert.ShouldBeTrue();
         r.Liter.ShouldNotBeNull();
         r.Gesamtpreis.ShouldNotBeNull();
+        r.Meldung.ShouldNotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task Ocr_Status_zeigt_Simulationsmodus_ohne_Modell()
+    {
+        var client = await AuthedAsync("ocr-status@tankbuch.at");
+        var resp = await client.GetAsync("/api/ocr/status");
+        resp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var status = await resp.Content.ReadFromJsonAsync<VisionStatus>(Json);
+        status!.Aktiv.ShouldBeFalse();
+        status.LetzteMeldung.ShouldNotBeNullOrWhiteSpace();
     }
 }

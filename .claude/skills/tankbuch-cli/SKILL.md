@@ -85,12 +85,20 @@ Format: Semikolon-getrennt, Dezimal-Komma, UTF-8 mit BOM. Spalten:
 
 ## Foto-Erkennung (OCR)
 
-Nutzt das per Aspire gehostete Vision-Modell (Ollama, `llama3.2-vision`). Ist es nicht verfügbar oder nichts erkennbar, liefert die API plausible **simulierte** Werte (Hinweis wird ausgegeben).
+Nutzt das per Aspire gehostete Vision-Modell (Ollama, `llama3.2-vision`). Ist es nicht verfügbar,
+liefert keine gültige JSON-Antwort oder erkennt unplausible Werte, fällt die API sauber auf
+**simulierte** Werte zurück – die Meldung erklärt jeweils den Grund (Zeitüberschreitung, kein JSON,
+unplausible Werte, …).
 
 ```bash
 tb ocr pump zapfsaeule.jpg        # → erkannte Liter + Gesamtpreis (+ €/l)
 tb ocr tacho tacho.jpg            # → erkannter Kilometerstand
+tb ocr status                     # → Diagnose: aktives Modell? letzter Aufruf erfolgreich? letzte Meldung/Rohantwort
 ```
+
+`tb ocr status` ruft `GET /api/ocr/status` auf und ist der schnellste Weg, um ohne eigenes Testfoto
+herauszufinden, warum die Bilderkennung fehlschlägt (z. B. Modell noch nicht geladen, Zeitüberschreitung,
+Antwort ohne JSON).
 
 ## Globale Optionen & Exit-Codes
 

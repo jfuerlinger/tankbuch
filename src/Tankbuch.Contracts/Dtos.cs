@@ -83,8 +83,19 @@ public record StatistikDto(
     TankvorgangDto? LetzterTankvorgang);
 
 // ---------- OCR ----------
-public record PumpOcrResult(decimal? Liter, decimal? Gesamtpreis, decimal? PreisProLiter, bool Simuliert);
-public record TachoOcrResult(long? Kilometerstand, bool Simuliert);
+// Meldung: nur gesetzt wenn Simuliert = true – erklärt, warum auf Zufallswerte zurückgefallen wurde
+// (z. B. Zeitüberschreitung, kein JSON in der Modell-Antwort, unplausible Werte).
+public record PumpOcrResult(decimal? Liter, decimal? Gesamtpreis, decimal? PreisProLiter, bool Simuliert, string? Meldung = null);
+public record TachoOcrResult(long? Kilometerstand, bool Simuliert, string? Meldung = null);
+
+/// <summary>Diagnose-Status der Bilderkennung – für Fehlersuche ohne eigenes Foto (siehe GET /api/ocr/status).</summary>
+public record VisionStatus(
+    bool Aktiv,
+    string? Modell,
+    DateTimeOffset? LetzterAufruf,
+    bool? LetzterAufrufErfolgreich,
+    string? LetzteMeldung,
+    string? LetzteRohantwort);
 
 // ---------- CSV ----------
 public record CsvImportResult(int Importiert, int Uebersprungen, int NeueFahrzeuge, string Meldung);

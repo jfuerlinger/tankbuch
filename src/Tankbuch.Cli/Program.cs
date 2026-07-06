@@ -43,6 +43,7 @@ app.Configure(cfg =>
         b.SetDescription("Fotos per Vision-Modell auslesen.");
         b.AddCommand<OcrPumpCommand>("pump").WithDescription("Zapfsäulen-Foto → Liter + Gesamtpreis.");
         b.AddCommand<OcrTachoCommand>("tacho").WithDescription("Tacho-Foto → Kilometerstand.");
+        b.AddCommand<OcrStatusCommand>("status").WithDescription("Diagnose: aktives Modell, letzter Aufruf, letzte Meldung/Rohantwort.");
     });
 });
 

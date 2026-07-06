@@ -74,6 +74,7 @@ public sealed class ApiClient(string baseUrl, string? token)
     // ---------- OCR ----------
     public Task<PumpOcrResult> OcrPumpAsync(byte[] img, string fileName, string contentType) => UploadImageAsync<PumpOcrResult>("api/ocr/pump", img, fileName, contentType);
     public Task<TachoOcrResult> OcrTachoAsync(byte[] img, string fileName, string contentType) => UploadImageAsync<TachoOcrResult>("api/ocr/tacho", img, fileName, contentType);
+    public Task<VisionStatus> OcrStatusAsync() => GetAsync<VisionStatus>("api/ocr/status");
 
     private async Task<T> UploadImageAsync<T>(string path, byte[] img, string fileName, string contentType)
     {

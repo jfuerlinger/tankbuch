@@ -44,11 +44,22 @@ export interface PumpOcrResult {
   gesamtpreis: number | null;
   preisProLiter: number | null;
   simuliert: boolean;
+  meldung: string | null;
 }
 
 export interface TachoOcrResult {
   kilometerstand: number | null;
   simuliert: boolean;
+  meldung: string | null;
+}
+
+export interface VisionStatus {
+  aktiv: boolean;
+  modell: string | null;
+  letzterAufruf: string | null;
+  letzterAufrufErfolgreich: boolean | null;
+  letzteMeldung: string | null;
+  letzteRohantwort: string | null;
 }
 
 export interface CsvImportResult {
