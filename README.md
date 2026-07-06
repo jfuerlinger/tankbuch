@@ -41,6 +41,19 @@ Das Aspire-Dashboard zeigt die URLs aller Dienste (Frontend, API/Swagger, pgAdmi
 
 > Hinweis macOS: Ollama läuft im Container ohne GPU-Durchgriff (CPU-Inferenz von `llama3.2-vision` ist langsam). Die OCR-Endpunkte fallen bei Fehler/Timeout automatisch auf plausible **simulierte** Werte zurück, sodass der Erfassungs-Flow immer funktioniert. Das Modell ist konfigurierbar (`AppHost.cs`).
 
+## Deployment (Docker Compose)
+
+Das AppHost definiert eine Docker-Compose-Deployment-Umgebung (`AddDockerComposeEnvironment`). Das Frontend wird dabei als eigener statischer Website-Container ausgeliefert (YARP), der `/api/*`-Aufrufe per Service Discovery an das Backend weiterleitet – siehe `frontend/vite.config.ts` für den analogen Dev-Proxy.
+
+```bash
+cd src/Tankbuch.AppHost
+aspire publish                # erzeugt aspire-output/docker-compose.yaml + .env (ohne Images zu bauen)
+aspire deploy                 # baut Images, füllt .env und startet den Stack (docker compose up -d)
+aspire destroy                # stoppt & entfernt Container, Netzwerke und Volumes
+```
+
+Für mehrere Umgebungen: `aspire deploy --environment staging` / `--environment production` (siehe [Aspire-Doku](https://aspire.dev/deployment/deploy-to-docker-compose/)).
+
 ## CLI (`tb`)
 
 Konsolen-App, die **jede** API-Methode spiegelt und ausschließlich über die HTTP-API zugreift:

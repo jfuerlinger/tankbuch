@@ -3,7 +3,10 @@ import type {
   PumpOcrResult, TachoOcrResult, CsvImportResult,
 } from './types';
 
-const BASE = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080').replace(/\/$/, '');
+// Relative Pfade: im Dev-Server leitet die Vite-Proxy-Konfiguration /api/* an das Backend
+// weiter (vite.config.ts), im Docker-Compose-Deployment übernimmt das YARP der
+// PublishAsStaticWebsite-Ressource dieselbe Weiterleitung (siehe AppHost.cs).
+const BASE = '';
 
 let token: string | null = localStorage.getItem('tb_token');
 export const getToken = () => token;
