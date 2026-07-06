@@ -1,0 +1,58 @@
+/* Design-Tokens & Basis – 1:1 aus der Design-Vorlage (Tankbuch Standalone) */
+html, body { margin: 0; padding: 0; }
+* { box-sizing: border-box; }
+
+:root {
+  --bg:#F6F7F9; --card:#FFFFFF; --card2:#EFF1F4; --border:#E5E7EB;
+  --text:#151922; --text2:#5B6472; --text3:#8B93A1;
+  --accent:#F59E0B; --accent-ink:#231903;
+  --data1:#0D9488; --data2:#3B82F6; --good:#15803D; --bad:#DC2626;
+  --shadow:0 1px 2px rgba(16,24,40,.05), 0 4px 14px rgba(16,24,40,.05);
+  --shadow-lg:0 12px 48px rgba(16,24,40,.22);
+}
+:root[data-theme="dark"], [data-theme="dark"] {
+  --bg:#0F1115; --card:#1A1D24; --card2:#242833; --border:#2A2E37;
+  --text:#F2F4F8; --text2:#9AA3B0; --text3:#6B7482;
+  --accent-ink:#231903;
+  --data1:#2DD4BF; --data2:#60A5FA; --good:#4ADE80; --bad:#F87171;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.28);
+  --shadow-lg:0 16px 56px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+[data-tb-root="1"] { --accent-text: color-mix(in srgb, var(--accent) 58%, #3A2600); }
+[data-tb-root="1"][data-theme="dark"] { --accent-text: color-mix(in srgb, var(--accent) 72%, #FFFFFF); }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+input::placeholder, textarea::placeholder { color: var(--text3); opacity: 1; }
+button { font-family: inherit; }
+
+@keyframes tb-fadeup { from { opacity:0; transform:translate(-50%,12px); } to { opacity:1; transform:translate(-50%,0); } }
+@keyframes tb-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes tb-scan { 0% { top:2px; } 50% { top:calc(100% - 5px); } 100% { top:2px; } }
+@keyframes tb-pulse { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+
+/* Pseudo-Zustände (inline nicht möglich) */
+.tb-input {
+  transition: border-color .15s, box-shadow .15s;
+}
+.tb-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.tb-accent:hover { filter: brightness(1.05); }
+.tb-soft:hover { border-color: var(--accent); }
+.tb-nav:hover { background: var(--card2); }
+.tb-icon:hover { background: var(--card2); color: var(--text); }
+.tb-icon-danger:hover { background: var(--card2); color: var(--bad); }
+.tb-row:hover { background: var(--card2); }
+.tb-danger-outline:hover { border-color: var(--bad); }
+.tb-noscroll::-webkit-scrollbar { display: none; }
+.tb-noscroll { scrollbar-width: none; -ms-overflow-style: none; }

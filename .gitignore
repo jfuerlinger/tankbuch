@@ -1,0 +1,22 @@
+# .NET
+bin/
+obj/
+*.user
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+.vs/
+
+# Node / Vite
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.log
+
+# Aspire / local
+**/appsettings.*.local.json
+
+# OS / editor
+.DS_Store
+.idea/
+*.swp

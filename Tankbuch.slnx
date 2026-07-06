@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Tankbuch.Api/Tankbuch.Api.csproj" />
+    <Project Path="src/Tankbuch.AppHost/Tankbuch.AppHost.csproj" />
+    <Project Path="src/Tankbuch.Cli/Tankbuch.Cli.csproj" />
+    <Project Path="src/Tankbuch.Contracts/Tankbuch.Contracts.csproj" />
+    <Project Path="src/Tankbuch.ServiceDefaults/Tankbuch.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Tankbuch.E2ETests/Tankbuch.E2ETests.csproj" />
+    <Project Path="tests/Tankbuch.IntegrationTests/Tankbuch.IntegrationTests.csproj" />
+    <Project Path="tests/Tankbuch.UnitTests/Tankbuch.UnitTests.csproj" />
+  </Folder>
+</Solution>
