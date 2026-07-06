@@ -1,5 +1,10 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
+// ---------- Docker Compose Deployment ----------
+// Aktiviert `aspire publish` / `aspire deploy`, um die gesamte Anwendung als
+// Docker-Compose-Stack (docker-compose.yaml + .env) zu erzeugen und auszurollen.
+builder.AddDockerComposeEnvironment("compose");
+
 // ---------- PostgreSQL ----------
 var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()                              // Daten über Neustarts hinweg behalten
@@ -25,9 +30,17 @@ var api = builder.AddProject<Projects.Tankbuch_Api>("api")
     .WithExternalHttpEndpoints();
 
 // ---------- Frontend (Vite + React) ----------
+// PublishAsStaticWebsite: Aspire erzeugt für das Deployment einen eigenen Container,
+// der die gebauten Vite-Assets über YARP ausliefert und `/api/*` per Service Discovery
+// an das Backend weiterleitet. Wichtig: VITE_API_BASE_URL wird bewusst NICHT gesetzt,
+// da Vite-Umgebungsvariablen zur Build-Zeit gebacken werden und zur Laufzeit im
+// Deployment nicht mehr greifen würden (siehe frontend/vite.config.ts für den
+// Dev-Proxy, der denselben /api-Pfad lokal über den Vite-Dev-Server nachbildet).
+#pragma warning disable ASPIREJAVASCRIPT001
 builder.AddViteApp("frontend", "../../frontend")
     .WithReference(api).WaitFor(api)
-    .WithEnvironment("VITE_API_BASE_URL", api.GetEndpoint("http"))
+    .PublishAsStaticWebsite(apiPath: "/api", apiTarget: api)
     .WithExternalHttpEndpoints();
+#pragma warning restore ASPIREJAVASCRIPT001
 
 builder.Build().Run();

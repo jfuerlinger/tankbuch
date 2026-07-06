@@ -15,6 +15,7 @@ frontend/.vite/
 
 # Aspire / local
 **/appsettings.*.local.json
+aspire-output/
 
 # OS / editor
 .DS_Store
