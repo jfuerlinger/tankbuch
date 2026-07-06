@@ -37,10 +37,18 @@ var api = builder.AddProject<Projects.Tankbuch_Api>("api")
 // Deployment nicht mehr greifen würden (siehe frontend/vite.config.ts für den
 // Dev-Proxy, der denselben /api-Pfad lokal über den Vite-Dev-Server nachbildet).
 #pragma warning disable ASPIREJAVASCRIPT001
-builder.AddViteApp("frontend", "../../frontend")
+var frontend = builder.AddViteApp("frontend", "../../frontend")
     .WithReference(api).WaitFor(api)
     .PublishAsStaticWebsite(apiPath: "/api", apiTarget: api)
     .WithExternalHttpEndpoints();
 #pragma warning restore ASPIREJAVASCRIPT001
+
+// ---------- DevTunnel für das Frontend ----------
+// Macht den lokalen Vite-Dev-Server über eine öffentliche https://*.devtunnels.ms-URL
+// erreichbar (z. B. für Tests auf Mobilgeräten oder Demos). Nur ein Dev-Time-Feature,
+// wird beim Publish/Deploy nicht berücksichtigt.
+builder.AddDevTunnel("frontend-tunnel")
+    .WithReference(frontend)
+    .WithAnonymousAccess();
 
 builder.Build().Run();
