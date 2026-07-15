@@ -17,6 +17,11 @@ frontend/.vite/
 **/appsettings.*.local.json
 aspire-output/
 
+# iOS – von XcodeGen generierte Artefakte (`cd ios && xcodegen generate`), Build-Output
+ios/Tankbuch.xcodeproj/
+ios/Tankbuch/Info.plist
+ios/build/
+
 # OS / editor
 .DS_Store
 .idea/

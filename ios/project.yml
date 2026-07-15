@@ -1,0 +1,68 @@
+# XcodeGen-Projektdefinition – `xcodegen generate` erzeugt Tankbuch.xcodeproj.
+name: Tankbuch
+options:
+  bundleIdPrefix: at.jfuerlinger
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+
+targets:
+  Tankbuch:
+    type: application
+    platform: iOS
+    sources:
+      - path: Tankbuch
+    scheme:
+      testTargets:
+        - TankbuchUITests
+    info:
+      path: Tankbuch/Info.plist
+      properties:
+        CFBundleDisplayName: Tankbuch
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSCameraUsageDescription: "Tankbuch fotografiert Zapfsäule und Tacho, um Liter, Preis und Kilometerstand automatisch zu erkennen."
+        # Dev-Komfort: erlaubt http://localhost/… (Aspire-Dev-API); DevTunnel-URLs sind ohnehin https.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        UIAppFonts:
+          - IBMPlexSans-Regular.ttf
+          - IBMPlexSans-Medium.ttf
+          - IBMPlexSans-SemiBold.ttf
+          - IBMPlexSans-Bold.ttf
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: at.jfuerlinger.tankbuch
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ENABLE_PREVIEWS: YES
+        CODE_SIGN_STYLE: Automatic
+
+  # E2E-Smoke-Test (XCUITest): Login → Erfassen → Verlauf → Statistik → Einstellungen.
+  # Benötigt die laufende API (http://localhost:5072), analog zu den Playwright-E2E-Tests des Frontends.
+  TankbuchUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TankbuchUITests
+    dependencies:
+      - target: Tankbuch
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: at.jfuerlinger.tankbuch.uitests
+        TEST_TARGET_NAME: Tankbuch
+        GENERATE_INFOPLIST_FILE: YES

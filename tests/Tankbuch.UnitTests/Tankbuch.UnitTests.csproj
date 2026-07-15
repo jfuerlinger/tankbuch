@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Tankbuch.Api\Tankbuch.Api.csproj" />
+    <ProjectReference Include="..\..\src\Tankbuch.Cli\Tankbuch.Cli.csproj" />
     <ProjectReference Include="..\..\src\Tankbuch.Contracts\Tankbuch.Contracts.csproj" />
   </ItemGroup>
 
