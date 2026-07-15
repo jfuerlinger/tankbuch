@@ -5,6 +5,14 @@ var builder = DistributedApplication.CreateBuilder(args);
 // Docker-Compose-Stack (docker-compose.yaml + .env) zu erzeugen und auszurollen.
 builder.AddDockerComposeEnvironment("compose");
 
+// ---------- Container-Registry (Docker Hub) ----------
+// Selbst gebaute Images (api, frontend) werden bei `aspire publish`/`aspire deploy` nach
+// Docker Hub gepusht, damit Ziel-Hosts (z. B. proxmox-01) sie nur pullen statt lokal aus dem
+// Quellcode zu bauen. Nur in Publish-Mode aktiv (aspire run bleibt unberührt).
+#pragma warning disable ASPIRECOMPUTE003
+var dockerHub = builder.AddContainerRegistry("docker-hub", "docker.io", "jfuerlinger");
+#pragma warning restore ASPIRECOMPUTE003
+
 // ---------- PostgreSQL ----------
 var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()                              // Daten über Neustarts hinweg behalten
@@ -24,10 +32,13 @@ var vision = ollama.AddModel("vision", "llama3.2-vision");
 // ---------- Backend (.NET 10 WebApi + FastEndpoints) ----------
 // Hinweis: bewusst kein WaitFor(vision) – der Stack startet sofort, das Modell lädt im
 // Hintergrund. Bis es bereit ist, fällt die OCR sauber auf simulierte Werte zurück.
+#pragma warning disable ASPIRECOMPUTE003
 var api = builder.AddProject<Projects.Tankbuch_Api>("api")
     .WithReference(db).WaitFor(db)
     .WithReference(vision)
-    .WithExternalHttpEndpoints();
+    .WithExternalHttpEndpoints()
+    .WithContainerRegistry(dockerHub);
+#pragma warning restore ASPIRECOMPUTE003
 
 // ---------- Frontend (Vite + React) ----------
 // PublishAsStaticWebsite: Aspire erzeugt für das Deployment einen eigenen Container,
@@ -36,12 +47,13 @@ var api = builder.AddProject<Projects.Tankbuch_Api>("api")
 // da Vite-Umgebungsvariablen zur Build-Zeit gebacken werden und zur Laufzeit im
 // Deployment nicht mehr greifen würden (siehe frontend/vite.config.ts für den
 // Dev-Proxy, der denselben /api-Pfad lokal über den Vite-Dev-Server nachbildet).
-#pragma warning disable ASPIREJAVASCRIPT001
+#pragma warning disable ASPIREJAVASCRIPT001, ASPIRECOMPUTE003
 var frontend = builder.AddViteApp("frontend", "../../frontend")
     .WithReference(api).WaitFor(api)
     .PublishAsStaticWebsite(apiPath: "/api", apiTarget: api)
-    .WithExternalHttpEndpoints();
-#pragma warning restore ASPIREJAVASCRIPT001
+    .WithExternalHttpEndpoints()
+    .WithContainerRegistry(dockerHub);
+#pragma warning restore ASPIREJAVASCRIPT001, ASPIRECOMPUTE003
 
 // ---------- DevTunnel für das Frontend ----------
 // Macht den lokalen Vite-Dev-Server über eine öffentliche https://*.devtunnels.ms-URL

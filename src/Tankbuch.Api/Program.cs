@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using Microsoft.Extensions.Http.Resilience;
 using Tankbuch.Api.Data;
 using Tankbuch.Api.Services;
 
@@ -36,6 +37,24 @@ var hasVision = !string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionSt
 if (hasVision)
 {
     builder.AddOllamaApiClient("vision").AddChatClient();
+    // AddServiceDefaults() ruft ConfigureHttpClientDefaults(http => { http.AddStandardResilienceHandler(); ... })
+    // auf. Dieser Aufruf verwendet intern einen HttpClientBuilder mit Name = null (siehe
+    // Microsoft.Extensions.Http.DefaultHttpClientBuilder – gilt für ALLE HttpClients der App, nicht
+    // pro Client), wodurch die resultierenden benannten Options via PipelineNameHelper.GetName(null,
+    // "standard") = "-standard" heißen (nicht "{ClientName}-standard"!). Ein zusätzlicher, clientspezifisch
+    // benannter AddStandardResilienceHandler()-Aufruf würde nur einen ZWEITEN, verschachtelten Handler
+    // registrieren – die äußere globale 30s-Grenze bliebe trotzdem bestehen. Foto-Erkennung per
+    // CPU-Inferenz (kein GPU-Durchgriff) kann deutlich länger dauern als 30s – ohne dieses Override
+    // killt der globale Standard-Handler den Ollama-Request, bevor OllamaVisionService.AskAsync
+    // (Vision:TimeoutSeconds, Default 45s) sein eigenes, sauber abgefangenes Timeout mit verständlicher
+    // Meldung greifen lassen kann. Da die App außer Ollama/OTLP keine weiteren latenzkritischen
+    // Außenverbindungen hat, ist eine app-weite Anhebung hier unkritisch.
+    builder.Services.Configure<HttpStandardResilienceOptions>("-standard", o =>
+    {
+        o.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
+        o.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(2);
+        o.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(4);
+    });
     builder.Services.AddScoped<IVisionService, OllamaVisionService>();
 }
 else
