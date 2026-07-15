@@ -14,9 +14,14 @@ export function fmtDate(iso: string): string {
 
 export function parseDe(s: string | null | undefined): number | null {
   if (s == null) return null;
-  let t = String(s).trim();
+  // Gruppierungs-Leerzeichen entfernen: je nach CLDR-Version formatiert de-AT
+  // Tausender mit (schmalem) geschütztem Leerzeichen ("54 696").
+  let t = String(s).trim().replace(/\s/g, ''); // \s deckt auch U+00A0/U+202F ab
   if (!t) return null;
   if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  // Reine Tausender-Gruppierung ohne Komma (z. B. "54.696" aus fmt(km, 0) nach dem
+  // Tacho-Scan): Punkte sind Gruppierung, kein Dezimalpunkt – sonst würde daraus 55 km.
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
   const n = parseFloat(t);
   return isFinite(n) ? n : null;
 }

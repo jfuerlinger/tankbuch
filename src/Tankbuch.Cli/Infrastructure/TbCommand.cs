@@ -43,8 +43,11 @@ public static class Fmt
     public static decimal? Dec(string? s)
     {
         if (string.IsNullOrWhiteSpace(s)) return null;
-        var t = s.Trim();
+        // Gruppierungs-Leerzeichen entfernen (de-AT formatiert je nach ICU "54 696").
+        var t = System.Text.RegularExpressions.Regex.Replace(s.Trim(), @"\s", ""); // inkl. U+00A0/U+202F
         if (t.Contains(',')) t = t.Replace(".", "").Replace(',', '.');
+        // Reine Tausender-Gruppierung ohne Komma ("54.696" = 54696): Punkte sind Gruppierung.
+        else if (System.Text.RegularExpressions.Regex.IsMatch(t, @"^\d{1,3}(\.\d{3})+$")) t = t.Replace(".", "");
         return decimal.TryParse(t, NumberStyles.Any, CultureInfo.InvariantCulture, out var v) ? v : null;
     }
 
