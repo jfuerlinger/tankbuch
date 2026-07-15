@@ -16,6 +16,7 @@ Aspire AppHost (src/Tankbuch.AppHost)
 src/Tankbuch.Cli         .NET 10 Konsolen-App (`tb`) – dünner API-Client (kein DB-Zugriff)
 src/Tankbuch.Contracts   gemeinsame DTOs (API + CLI)
 src/Tankbuch.ServiceDefaults  Aspire Service Defaults (Telemetry, Health, Resilience)
+ios/                     native iOS-App (SwiftUI) – dünner API-Client wie Frontend/CLI
 tests/…                  Unit-, Integrations- (Testcontainers) und E2E-Tests (Playwright)
 ```
 
@@ -65,6 +66,35 @@ aspire destroy                # stoppt & entfernt Container, Netzwerke und Volum
 ```
 
 Für mehrere Umgebungen: `aspire deploy --environment staging` / `--environment production` (siehe [Aspire-Doku](https://aspire.dev/deployment/deploy-to-docker-compose/)).
+
+## iOS-App
+
+Native SwiftUI-App (`ios/`) mit der vollen Funktionalität der Web-App: Login (E-Mail + OTP),
+Dashboard, Erfassen (Foto-OCR per Kamera + Trio-Auto-Berechnung), Verlauf (Swipe zum
+Bearbeiten/Löschen), Statistiken, Fahrzeuge, Einstellungen (Theme, CSV-Export/-Import).
+Design an die Web-Vorlage angelehnt (IBM Plex Sans, Amber-Akzent, Light/Dark), umgesetzt
+mit nativen Controls (TabView, Sheets, Swift Charts, DatePicker, Share-Sheet, fileImporter).
+
+Voraussetzungen: **Xcode 26+** und **XcodeGen** (`brew install xcodegen`).
+
+```bash
+cd ios
+xcodegen generate          # erzeugt Tankbuch.xcodeproj (nicht eingecheckt)
+open Tankbuch.xcodeproj    # oder: xcodebuild -scheme Tankbuch … build
+```
+
+Die App spricht dieselbe HTTP-API. Beim Login lässt sich unter **„Server“** die API-URL
+setzen (Default `http://localhost:5072`, z. B. für `dotnet run --project src/Tankbuch.Api`);
+alternativ die API-URL aus dem Aspire-Dashboard oder eine DevTunnel-URL eintragen.
+Im Simulator ersetzt die Fotobibliothek die Kamera; der **Demo**-Button liefert wie im Web
+simulierte Scan-Werte.
+
+E2E-Smoke-Test (XCUITest, benötigt laufende API auf `localhost:5072`):
+
+```bash
+cd ios && xcodebuild -project Tankbuch.xcodeproj -scheme Tankbuch \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
+```
 
 ## CLI (`tb`)
 
